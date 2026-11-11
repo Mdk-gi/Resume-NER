@@ -1,6 +1,6 @@
-# Resume Profile Extractor
+# Resume NER – AI-Powered Resume Information Extractor
 
-An AI-powered Resume Profile Extractor that uses a Fine-Tuned BERT model and a Gemini AI Agent to extract, analyze, review, and organize candidate information from resumes and supporting documents.
+An AI-powered Resume Information Extraction system that uses a fine-tuned BERT model and a Gemini AI Agent to extract, review, and organize candidate information from PDF resumes.
 
 ## Live Demo
 
@@ -10,22 +10,23 @@ An AI-powered Resume Profile Extractor that uses a Fine-Tuned BERT model and a G
 
 ## Project Overview
 
-The Resume Profile Extractor automates the process of extracting and organizing candidate information from PDF resumes.
+Resume NER is an AI-based application designed to simplify the process of extracting structured information from resumes.
 
-The project combines a custom fine-tuned BERT Named Entity Recognition (NER) model with a Gemini-powered AI Agent to produce structured candidate profiles.
+The system uses a fine-tuned BERT model for Named Entity Recognition (NER) to identify important information from resume text. A Gemini AI Agent then reviews and organizes the extracted information into a structured candidate profile.
 
-Users can upload a resume along with optional supporting documents such as certificates, marksheets, and experience letters.
+Users can upload a resume PDF and optional supporting documents through a Streamlit interface.
 
 ## Key Features
 
-- Upload PDF resumes.
-- Upload multiple supporting PDF documents.
+- Upload resumes in PDF format.
 - Extract candidate information using a fine-tuned BERT model.
-- Review and organize extracted information using a Gemini AI Agent.
-- Identify missing candidate information.
+- Identify 12 different entity categories.
+- Use a Gemini AI Agent to review and organize extracted information.
+- Upload optional supporting PDF documents.
 - Generate structured candidate profiles.
-- Download the final candidate profile in JSON format.
-- Simple and user-friendly Streamlit interface.
+- Identify missing information.
+- Download extracted information in JSON format.
+- Simple and interactive Streamlit interface.
 
 ## Technologies Used
 
@@ -33,38 +34,41 @@ Users can upload a resume along with optional supporting documents such as certi
 |---|---|
 | Python | Core programming language |
 | BERT | Named Entity Recognition |
-| PyTorch | Deep learning framework |
-| Hugging Face Transformers | BERT model and tokenizer |
-| Gemini API | AI-powered information review |
+| PyTorch | Model execution |
+| Transformers | BERT model and tokenizer |
+| Gemini API | AI-powered information review and organization |
 | Streamlit | Web application interface |
 | PyMuPDF | PDF text extraction |
-| Git & GitHub | Version control and source code hosting |
+| Git & GitHub | Version control and project hosting |
 
 ## System Architecture
 
-1. **Resume Upload:** Users upload a resume and optional supporting documents.
-2. **PDF Processing:** PyMuPDF extracts text from the uploaded PDF files.
-3. **BERT Extraction:** The fine-tuned BERT model identifies candidate entities.
-4. **AI Agent Review:** The Gemini AI Agent reviews and organizes the extracted information using resume context and supporting documents.
-5. **Profile Generation:** The application prepares a structured candidate profile and identifies missing information.
-6. **Download:** Users can download the final profile as a JSON file.
+The project follows this workflow:
 
-## Information Extracted
+1. **Resume Upload:** User uploads a resume PDF through the Streamlit application.
+2. **Text Extraction:** PyMuPDF extracts text from the uploaded PDF.
+3. **BERT Model:** The fine-tuned BERT model identifies entities from the extracted text.
+4. **Gemini AI Agent:** The extracted information is reviewed and organized into a structured profile.
+5. **Final Output:** The application displays candidate information, missing fields, and provides a JSON download option.
 
-The application works with 12 entity categories:
+## Entity Categories
 
-- NAME
-- EMAIL
-- PHONE
-- SKILL
-- DEGREE
-- COLLEGE
-- COMPANY
-- DESIGNATION
-- EXPERIENCE
-- LOCATION
-- GRADUATION_YEAR
-- CERTIFICATION
+The fine-tuned BERT model identifies the following 12 entity categories:
+
+| Entity | Description |
+|---|---|
+| NAME | Candidate name |
+| EMAIL | Email address |
+| PHONE | Phone number |
+| SKILL | Technical and professional skills |
+| DEGREE | Educational qualification |
+| COLLEGE | College or university |
+| COMPANY | Company name |
+| DESIGNATION | Job designation |
+| EXPERIENCE | Work experience |
+| LOCATION | Candidate location |
+| GRADUATION_YEAR | Graduation year |
+| CERTIFICATION | Professional certifications |
 
 ## Project Structure
 
@@ -74,57 +78,74 @@ Resume-NER/
 ├── agent/
 │   └── llm_agent.py
 │
-├── src/
-│   ├── predict.py
-│   ├── extraction.py
-│   ├── preprocessing.py
-│   ├── evaluation.py
-│   ├── ocr.py
-│   └── download_model.py
-│
 ├── samples/
+│   └── .gitkeep
 │
-├── app.py
-├── train_ner.py
-├── test_model.py
-├── requirements.txt
+├── src/
+│   ├── __init__.py
+│   ├── download_model.py
+│   ├── evaluation.py
+│   ├── extraction.py
+│   ├── ocr.py
+│   ├── predict.py
+│   ├── preprocessing.py
+│
+├── .env.example
+├── .gitignore
 ├── MODEL_CARD.md
 ├── README.md
-└── .gitignore
+├── app.py
+├── requirements.txt
+└── train_ner.py
 ```
 
-## Installation and Local Setup
+## Model Information
 
-### 1. Clone the repository
+- **Model:** Fine-Tuned BERT
+- **Base Model:** google-bert/bert-base-cased
+- **Architecture:** BERT Token Classification
+- **Task:** Named Entity Recognition
+- **Framework:** PyTorch
+- **Entity Categories:** 12
+
+The pretrained BERT model was fine-tuned using an annotated resume NER dataset prepared for this project.
+
+The trained model is stored separately from the GitHub source code and downloaded from the project's GitHub Release when required.
+
+**Model Release:** https://github.com/Mdk-gi/Resume-NER/releases/tag/version
+
+## Installation and Setup
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Mdk-gi/Resume-NER.git
 cd Resume-NER
 ```
 
-### 2. Create a virtual environment
+### 2. Create a Virtual Environment
 
 ```bash
-python -m venv .venv
+python -m venv venv
 ```
 
-### 3. Activate the environment
-
-Windows:
+Activate it on Windows:
 
 ```bash
-.venv\Scripts\activate
+venv\Scripts\activate
 ```
 
-### 4. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configure Gemini API Key
+### 4. Configure Gemini API Key
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root directory.
+
+Add your Gemini API key:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key
@@ -132,39 +153,50 @@ GEMINI_API_KEY=your_gemini_api_key
 
 Never upload your actual API key to GitHub.
 
-### 6. Run the application
+### 5. Run the Application
 
 ```bash
 streamlit run app.py
 ```
 
+The application will open in your browser.
+
 ## Deployment
 
-The application is deployed using Streamlit Community Cloud and connected to the GitHub repository.
+The application is deployed using Streamlit Community Cloud.
 
-The trained BERT model is distributed separately through GitHub Releases and downloaded by the application when required.
+- **Frontend:** Streamlit
+- **Source Code:** GitHub
+- **Trained Model:** GitHub Release
+- **AI Agent:** Gemini API
 
-## Important Notes
+The trained BERT model is downloaded automatically from the GitHub Release when it is not available locally.
 
-- The application currently supports text-based PDF extraction.
-- Scanned PDFs requiring OCR are not supported by the current upload workflow.
-- Candidate information should be reviewed before making recruitment decisions.
-- The Gemini API requires a valid API key.
+## Limitations
+
+- Extraction accuracy depends on resume formatting and text quality.
+- Unusual layouts may affect entity recognition.
+- Some information may be missed or incorrectly classified.
+- Extracted information should be reviewed before professional use.
+- Gemini AI Agent output may require verification.
 
 ## Future Improvements
 
-- Improve NER extraction accuracy.
-- Enhance entity validation and formatting.
-- Integrate OCR for scanned resumes.
-- Add advanced candidate search and filtering.
-- Improve resume evaluation and reporting.
+- Improve entity recognition accuracy.
+- Expand the training dataset.
+- Support additional resume formats.
+- Improve extraction for complex resume layouts.
+- Add more evaluation and validation capabilities.
 
 ## Author
 
 **Mohammed Jalil Kurupkar**
 
-B.Tech – Computer Science Engineering (AI & Analytics)
+B.Tech – Computer Science and Engineering  
+Specialization: AI and Analytics
+
+GitHub: https://github.com/Mdk-gi
 
 ## License
 
-This project is available for educational and demonstration purposes.
+This project is developed for educational and academic purposes.
