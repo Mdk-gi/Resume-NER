@@ -1,0 +1,9 @@
+# We will add the exact dependencies in a later step.
+
+streamlit
+pymupdf
+torch
+transformers
+safetensors
+google-genai
+python-dotenv
