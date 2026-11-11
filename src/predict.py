@@ -1,7 +1,8 @@
 
 from pathlib import Path
-import os
 import torch
+import urllib.request
+import zipfile
 
 from transformers import (
     AutoTokenizer,
@@ -17,8 +18,10 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 LOCAL_MODEL_PATH = PROJECT_ROOT / "models" / "p30_bert_final"
 
-# Replace with your Hugging Face model ID
-HF_MODEL_ID = "YOUR-USERNAME/p30-resume-ner-model"
+MODEL_URL = (
+    "https://github.com/Mdk-gi/Resume-NER/releases/download/"
+    "version/p30_bert_final.zip"
+)
 
 # =====================================
 # 2. DEVICE
@@ -30,39 +33,83 @@ print("Loading trained resume NER model...")
 print("Device:", "GPU" if device == 0 else "CPU")
 
 # =====================================
-# 3. LOAD MODEL
+# 3. DOWNLOAD MODEL IF MISSING
 # =====================================
 
-if LOCAL_MODEL_PATH.exists() and (
-    LOCAL_MODEL_PATH / "model.safetensors"
-).exists():
+model_file = LOCAL_MODEL_PATH / "model.safetensors"
 
-    print("Loading model from local folder...")
+if not model_file.exists():
 
-    MODEL_SOURCE = str(LOCAL_MODEL_PATH)
-    LOCAL_ONLY = True
+    print("Trained model not found locally.")
+    print("Downloading trained model from GitHub Release...")
 
-else:
+    LOCAL_MODEL_PATH.mkdir(parents=True, exist_ok=True)
 
-    print("Downloading trained model from Hugging Face...")
+    zip_path = PROJECT_ROOT / "p30_bert_final.zip"
 
-    MODEL_SOURCE = HF_MODEL_ID
-    LOCAL_ONLY = False
+    try:
+
+        urllib.request.urlretrieve(
+            MODEL_URL,
+            zip_path
+        )
+
+        print("Model downloaded successfully!")
+
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(LOCAL_MODEL_PATH)
+
+        print("Model extracted successfully!")
+
+    finally:
+
+        if zip_path.exists():
+            zip_path.unlink()
+
+# =====================================
+# 4. VERIFY MODEL FILES
+# =====================================
+
+required_files = [
+    "config.json",
+    "model.safetensors",
+    "tokenizer.json",
+    "tokenizer_config.json"
+]
+
+missing_files = [
+    name
+    for name in required_files
+    if not (LOCAL_MODEL_PATH / name).exists()
+]
+
+if missing_files:
+    raise FileNotFoundError(
+        f"Missing trained model files: {missing_files}"
+    )
+
+# =====================================
+# 5. LOAD TRAINED BERT MODEL
+# =====================================
+
+print("Loading trained BERT tokenizer...")
 
 tokenizer = AutoTokenizer.from_pretrained(
-    MODEL_SOURCE,
-    local_files_only=LOCAL_ONLY
+    str(LOCAL_MODEL_PATH),
+    local_files_only=True
 )
 
+print("Loading trained BERT model...")
+
 model = AutoModelForTokenClassification.from_pretrained(
-    MODEL_SOURCE,
-    local_files_only=LOCAL_ONLY
+    str(LOCAL_MODEL_PATH),
+    local_files_only=True
 )
 
 print("Trained model loaded successfully!")
 
 # =====================================
-# 4. CREATE PIPELINE
+# 6. CREATE PIPELINE
 # =====================================
 
 ner_pipeline = pipeline(
@@ -74,7 +121,7 @@ ner_pipeline = pipeline(
 )
 
 # =====================================
-# 5. ENTITY LABELS
+# 7. ENTITY LABELS
 # =====================================
 
 ENTITY_LABELS = [
@@ -93,7 +140,7 @@ ENTITY_LABELS = [
 ]
 
 # =====================================
-# 6. ENTITY EXTRACTION
+# 8. ENTITY EXTRACTION
 # =====================================
 
 def extract_entities(text):
@@ -103,7 +150,9 @@ def extract_entities(text):
 
     predictions = ner_pipeline(text)
 
-    results = {label: [] for label in ENTITY_LABELS}
+    results = {
+        label: [] for label in ENTITY_LABELS
+    }
 
     for item in predictions:
 
@@ -111,6 +160,7 @@ def extract_entities(text):
         value = item["word"].strip()
 
         if entity in results and value:
+
             if value not in results[entity]:
                 results[entity].append(value)
 
@@ -122,7 +172,7 @@ def extract_entities(text):
 
 
 # =====================================
-# 7. TEST
+# 9. TEST
 # =====================================
 
 if __name__ == "__main__":
@@ -147,3 +197,4 @@ if __name__ == "__main__":
         print(f"{entity}: {values}")
 
     print("\nExtraction completed!")
+    
